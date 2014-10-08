@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="WEB_MODULE" version="4">
+  <component name="NewModuleRootManager">
+  <% _.each( contentPaths, function( path ){ %>
+      <% if(path.excluded.length > 0) { %>
+          <content url="<%= path.content %>">
+              <% _.each( path.excluded, function( exclude ){ %>
+                  <excludeFolder url="<%= path.content %>/<%= exclude %>" />
+              <% }); %>
+          </content>
+      <% } else { %>
+          <content url="<%= path.content %>" />
+      <% }; %>
+  <% }); %>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>
+

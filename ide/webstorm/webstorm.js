@@ -23,8 +23,11 @@ function WebStorm() {
         this.executable = 'wstorm';
     } else {
         //  todo in windows check if this webstorm.exe exists otherwise prompt for a path and save it to disk}
-        this.executable = '"C:/Program Files (x86)/JetBrains/WebStorm 8.0.1/bin/WebStorm.exe"';
-        if (!fs.existsSync(this.executable))
+        var webstormPath = path.resolve('/', 'Program Files (x86)/JetBrains/WebStorm 8.0.1/bin/WebStorm.exe');
+
+        this.executable = '"' + webstormPath + '"';
+
+        if (!this.templateUtil.fileExists(this.executable))
             console.error('Error the WebStorm.exe is not present at', this.executable);
     }
 }

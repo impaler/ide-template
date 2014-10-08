@@ -103,4 +103,13 @@ ideTemplate.isDirectory = function (source)
     return fs.statSync(source).isDirectory();
 };
 
+ideTemplate.fileExists = function (filePath){
+    try{
+        fs.statSync(filePath);
+    }catch(err){
+        if(err.code == 'ENOENT') return false;
+    }
+    return true;
+};
+
 module.exports = ideTemplate;

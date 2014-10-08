@@ -7,6 +7,7 @@ var util = require('util'),
 IDE = require('../IDE'),
 gutil = require('gulp-util'),
 fs = require('fs'),
+argv = require('yargs').argv,
 _ = require('lodash'),
 templateUtil = require('../../index'),
 path = require('path');
@@ -37,6 +38,7 @@ util.inherits(WebStorm, IDE);
 WebStorm.prototype.open = function (location)
 {
     if (!this.validatePath(location)) return;
+    if(argv.noopen) return;
 
     this.templateSource = path.join(this.templateSource, 'project');
 

@@ -30,9 +30,6 @@
       <setting name="OPEN_NEW_TAB" value="true" />
     </FindUsagesManager>
   </component>
-  <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$USER_HOME$/sourceCode/html-activities-git/html-activities" />
-  </component>
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
@@ -73,24 +70,6 @@
     <panes>
       <pane id="Scope" />
       <pane id="ProjectPane">
-        <subPane>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="activitiesWorking" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="activitiesWorking" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="activitiesWorking" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-            </PATH_ELEMENT>
-          </PATH>
-        </subPane>
       </pane>
     </panes>
   </component>
@@ -107,18 +86,10 @@
 
       <% if(jsDebugConfiguration.length > 0) { _.each( jsDebugConfiguration, function( debugConfiguration ){ %>
 
-      <configuration default="false" name="<%= debugConfiguration.name %>" type="JavascriptDebugType" factoryName="JavaScript Debug" temporary="true"
-                     uri="http://localhost:<%= jsDebugPort %>/<%= debugConfiguration.indexPath %>">
-
-          <RunnerSettings RunnerId="JavascriptDebugRunner" />
-          <ConfigurationWrapper RunnerId="JavascriptDebugRunner" />
-          <setting name="preferredDebugBrowser" value="Firefox" />
-          <method />
-
+      <configuration default="false" name="<%= debugConfiguration.name %>" type="JavascriptDebugType" factoryName="JavaScript Debug" uri="http://localhost:<%= jsDebugPort %>/<%= debugConfiguration.indexPath %>">
       </configuration>
 
       <% }); }; %>
-
 
     <configuration default="true" type="DartUnitRunConfigurationType" factoryName="DartUnit">
       <option name="VMOptions" />
@@ -161,28 +132,12 @@
     <configuration default="true" type="NodeJSConfigurationType" factoryName="Node.js" working-dir="">
       <method />
     </configuration>
-    <list size="2">
-      <item index="0" class="java.lang.String" itemvalue="JavaScript Debug.<%= projectName %>" />
-      <item index="1" class="java.lang.String" itemvalue="JavaScript Debug.index.html" />
+    <list size="0">
     </list>
     <recent_temporary>
-      <list size="2">
-        <item index="0" class="java.lang.String" itemvalue="JavaScript Debug.<%= projectName %>" />
-        <item index="1" class="java.lang.String" itemvalue="JavaScript Debug.index.html" />
+      <list size="0">
       </list>
     </recent_temporary>
-  </component>
-  <component name="ShelveChangesManager" show_recycled="false" />
-  <component name="SvnConfiguration">
-    <configuration />
-  </component>
-  <component name="TaskManager">
-    <task active="true" id="Default" summary="Default task">
-      <changelist id="389d5f31-4f41-4545-88f9-67041f0cdb89" name="Default" comment="" />
-      <created>1407214715108</created>
-      <updated>1407214715108</updated>
-    </task>
-    <servers />
   </component>
   <component name="ToolWindowManager">
     <frame x="1440" y="23" width="1920" height="1058" extended-state="6" />

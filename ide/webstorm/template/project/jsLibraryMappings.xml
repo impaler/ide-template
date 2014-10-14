@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="JavaScriptLibraryMappings">
+    <file url="PROJECT" libraries="{
+    <% if(libraries.length > 0) { %>
+    <% _.each( libraries, function( library ){ %>
+    <%= library %>,
+    <% }); %><% } %>
+    }" />
+    <includedPredefinedLibrary name="Node.js Globals" />
+  </component>
+</project>

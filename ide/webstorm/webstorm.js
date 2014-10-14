@@ -78,15 +78,17 @@ WebStorm.prototype.createContext = function (custom)
         jshintPath          : './.jshintrc',
         jsDebugPort         : '63343',
         projectFolder       : '',
-        selectedJSDebugName : '',
+        selectedDebugName : '',
         contentPaths        : [
             {
                 content : 'file://$MODULE_DIR$',
                 excluded: []
             }
         ],
+        libraries           : [],
         vcs                 : [],
-        jsDebugConfiguration: []
+        jsDebugConfiguration: [],
+        nodejsDebugConfiguration: []
     };
 
     return _.merge(defaultContext, custom);

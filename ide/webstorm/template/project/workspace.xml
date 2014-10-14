@@ -82,7 +82,7 @@
     <property name="recentsLimit" value="5" />
     <property name="restartRequiresConfirmation" value="true" />
   </component>
-  <component name="RunManager" selected="JavaScript Debug.<%= selectedJSDebugName %>">
+  <component name="RunManager" selected="<%= selectedDebugName %>">
 
       <% if(jsDebugConfiguration.length > 0) { _.each( jsDebugConfiguration, function( debugConfiguration ){ %>
 
@@ -90,6 +90,22 @@
       </configuration>
 
       <% }); }; %>
+
+      <% if(nodejsDebugConfiguration.length > 0) { _.each( nodejsDebugConfiguration, function( debugConfiguration ){ %>
+
+      <configuration default="false" name="<%= debugConfiguration.name %>" type="NodeJSConfigurationType" factoryName="Node.js" path-to-node="/usr/local/bin/node" path-to-js-file="<%= debugConfiguration.jsPath %>" application-parameters="<%= debugConfiguration.applicationParameters %>" working-dir="<%= debugConfiguration.workingDir %>">
+          <RunnerSettings RunnerId="NodeJS.debug" />
+          <ConfigurationWrapper RunnerId="NodeJS.debug" />
+          <method />
+      </configuration>
+
+      <% }); } else { %>
+
+      <configuration default="true" type="NodeJSConfigurationType" factoryName="Node.js" working-dir="">
+          <method />
+      </configuration>
+
+      <% } %>
 
     <configuration default="true" type="DartUnitRunConfigurationType" factoryName="DartUnit">
       <option name="VMOptions" />
@@ -127,9 +143,6 @@
       <method />
     </configuration>
     <configuration default="true" type="JavascriptDebugType" factoryName="JavaScript Debug">
-      <method />
-    </configuration>
-    <configuration default="true" type="NodeJSConfigurationType" factoryName="Node.js" working-dir="">
       <method />
     </configuration>
     <list size="0">

@@ -14,6 +14,9 @@
   <% }); %>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+<% if(libraries.length > 0) { %><% _.each( libraries, function( library ){ %>
+    <orderEntry type="library" name="<%= library %>" level="application" />
+<% }); %><% } %>
   </component>
 </module>
 

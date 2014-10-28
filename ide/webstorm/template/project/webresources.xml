@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+    <component name="WebResourcesPaths">
+        <contentEntries>
+            <entry url="file://$PROJECT_DIR$">
+                <entryData>
+                    <resourceRoots>
+                        <% if(resourceRoots.length > 0) { %>
+                        <% _.each( resourceRoots, function( resouce ){ %>
+                        <path value="<%= resouce %>"/>
+                        <% }); %>
+                        <% } %>
+                    </resourceRoots>
+                </entryData>
+            </entry>
+        </contentEntries>
+    </component>
+</project>

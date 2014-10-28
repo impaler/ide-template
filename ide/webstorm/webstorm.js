@@ -1,169 +1,199 @@
-/**
- * Jetbrains Webstorm 8 project generation.
- *
- * @type {ideTemplate|exports}
- */
-var util = require('util'),
-IDE = require('../IDE'),
-gutil = require('gulp-util'),
-fs = require('fs'),
-argv = require('yargs').argv,
-_ = require('lodash'),
-templateUtil = require('../../index'),
-path = require('path');
+(function () {
 
-require('shelljs/global');
+    /**
+     * Jetbrains WebStorm 9 project generation.
+     *
+     * @type {ideTemplate|exports}
+     */
+    var util = require('util'),
+    IDE = require('../IDE'),
+    fs = require('fs'),
+    path = require('path'),
+    _ = require('lodash');
 
-function WebStorm() {
-    WebStorm.super_.apply(this, ['webstorm']);
+    require('shelljs/global');
 
-    // we loose scope of this require in this closure?
-    this.templateUtil = require('../../index');
+    var templateUtil;
 
-    if (this.templateUtil.platform === ('unix' || 'darwin')) {
-        this.executable = 'wstorm';
-    } else {
-        //  todo in windows check if this webstorm.exe exists otherwise prompt for a path and save it to disk}
-        var webstormPath = path.resolve('/', 'Program Files (x86)/JetBrains/WebStorm 8.0.1/bin/WebStorm.exe');
+    function WebStorm(ide) {
 
-        this.executable = '"' + webstormPath + '"';
+        WebStorm.super_.apply(this, ['webstorm']);
 
-        if (!this.templateUtil.fileExists(this.executable))
-            console.error('Error the WebStorm.exe is not present at', this.executable);
+        templateUtil = ide;
+
+        if (templateUtil.platform === ('unix' || 'darwin')) {
+            this.executable = 'wstorm';
+        } else {
+            // todo in windows check if webstorm.exe exists otherwise prompt for a path and save it to disk}
+            var webStormPath = path.resolve('/', 'Program Files (x86)/JetBrains/WebStorm 8.0.1/bin/WebStorm.exe');
+
+            this.executable = '"' + webStormPath + '"';
+
+            if (!templateUtil.fileExists(this.executable))
+                console.error('Error the WebStorm.exe is not present at', this.executable);
+        }
     }
-}
 
-util.inherits(WebStorm, IDE);
+    util.inherits(WebStorm, IDE);
 
-WebStorm.prototype.open = function (location)
-{
-    if (!this.validatePath(location)) return;
-    if(argv.noopen) return;
+    WebStorm.prototype.open = function (location)
+    {
+        if (!this.validatePath(location)) return;
 
-    this.templateSource = path.join(this.templateSource, 'project');
+        var openCommand = this.executable + ' "' + location + '"';
+        console.log(openCommand);
 
-    if (this.templateUtil.platform === ('unix' || 'darwin'))
-        exec(this.executable + ' "' + location + '"');
-    else
-        exec(this.executable + ' "' + location + '"');
+        if (templateUtil.platform === ('unix' || 'darwin'))
+            exec(openCommand);
+        else
+            exec(openCommand);
 
-    gutil.log('Please give WebStorm a chance to complete it\'s indexing before opening.');
-};
-
-/**
- * Create a new template context for an idea project.
- * if a custom context is provided it will override any default values of the resulting object.
- *
- *
- vcs          : [
- {
-     type: 'git',
-     path: 'file://$MODULE_DIR$'
- },
- ],
- jsDebugConfiguration:[
- {
-     name: 'test0',
-     indexPath: 'index.html'
- }
- ]
- *
- * @param custom
- * @returns {Result|Object}
- */
-WebStorm.prototype.createContext = function (custom)
-{
-    var defaultContext = {
-        projectName         : 'NewProject',
-        jshintPath          : './.jshintrc',
-        jsDebugPort         : '63343',
-        projectFolder       : '',
-        selectedDebugName : '',
-        contentPaths        : [
-            {
-                content : 'file://$MODULE_DIR$',
-                excluded: []
-            }
-        ],
-        libraries           : [],
-        vcs                 : [],
-        jsDebugConfiguration: [],
-        nodejsDebugConfiguration: []
+        console.log('Please give WebStorm a chance to complete it\'s indexing before opening.');
     };
 
-    return _.merge(defaultContext, custom);
-};
+    /**
+     * Create a new template context for an idea project.
+     * if a custom context is provided it will override any default values of the resulting object.
+     *
+     *
+     vcs          : [
+     {
+         type: 'git',
+         path: 'file://$MODULE_DIR$'
+     }
+     ],
+     jsDebugConfiguration:[
+     {
+         name: 'test0',
+         indexPath: 'index.html'
+     }
+     ]
+     *
+     * @param override
+     * @returns {Result|Object}
+     */
+    WebStorm.prototype.createContext = function (override)
+    {
+        var defaultContext = {
+            projectName             : 'NewProject',
+            jshintPath              : './.jshintrc',
+            jsDebugPort             : '63343',
+            projectFolder           : '',
+            selectedDebugName       : '',
+            contentPaths            : [
+                {
+                    content : 'file://$MODULE_DIR$',
+                    excluded: []
+                }
+            ],
+            libraries               : [],
+            vcs                     : [],
+            jsDebugConfiguration    : [],
+            nodejsDebugConfiguration: []
+        };
 
-/**
- * Shortcut to create a project context
- * @param projectName
- * @param contentPaths
- * @param jsDebugPort
- * @param jshintPath
- */
-WebStorm.prototype.createProjectContext = function (projectName, contentPaths, jsDebugPort, jshintPath)
-{
-    return {
-        projectName : projectName,
-        jshintPath  : jshintPath,
-        jsDebugPort : jsDebugPort,
-        contentPaths: contentPaths
+        return _.merge(defaultContext, override);
     };
-};
 
-/**
- * Create a new WebStorm .idea project at a given destination with
- * a specific template context.
- *
- * @param destination
- * @param context
- */
-WebStorm.prototype.createProject = function (destination, context)
-{
-    context = this.createContext(context);
+    /**
+     * Shortcut to create a project context
+     * @param projectName
+     * @param contentPaths
+     * @param jsDebugPort
+     * @param jshintPath
+     */
+    WebStorm.prototype.createProjectContext = function (projectName, contentPaths, jsDebugPort, jshintPath)
+    {
+        return {
+            projectName : projectName,
+            jshintPath  : jshintPath,
+            jsDebugPort : jsDebugPort,
+            contentPaths: contentPaths
+        };
+    };
 
-    var source = path.join(__dirname, this.templateSource, 'project');
-    destination = path.join(destination, '.idea');
+    /**
+     * Create a new WebStorm .idea project at a given destination with
+     * a specific template context.
+     *
+     * @param destination
+     * @param context
+     */
+    WebStorm.prototype.createProject = function (destination, context)
+    {
+        context = this.createContext(context);
 
-    this.templateUtil.templateDirSync(source, destination, context);
-};
+        var source = path.join(String(__dirname), 'template', 'project');
+        destination = path.join(destination, '.idea');
 
-/**
- * WebStorm IDE settings path.
- *
- * Returns the IDE settings path based on the current platform.
- *
- * See more info from the jetbrains docs.
- * http://www.jetbrains.com/webstorm/webhelp/project-and-ide-settings.html
- *
- * @returns {*}
- */
-WebStorm.prototype.userPreferences = function ()
-{
-    var location;
+        templateUtil.templateDirSync(source, destination, context);
 
-    if (templateUtil.platform === 'windows')
-        location = path.join(templateUtil.HOME, '.WebStorm8', 'config');
-    else
-        location = path.join(templateUtil.HOME, 'Library', 'Preferences', 'WebStorm8');
+        if (context.resourceRoots.length > 0)
+            stubPlainTextFiles(context.plainText, destination);
+    };
 
-    return location;
-};
+    /**
+     * WebStorm will remove any plain text files specified on first open
+     * if they do not exists.
+     *
+     * For example this lets files from a build be marked as plain text before they exist
+     * by stubbing an empty file at their expected position.
+     * @param resourceRoots
+     * @param destination
+     */
+    function stubPlainTextFiles(resourceRoots, destination) {
+        _.forEach(resourceRoots, function (resource) {
+            // Replace the webstorm file:// scheme with an absolute file path
+            var filePath = resource.replace('file://$PROJECT_DIR$', destination);
+            filePath = filePath.replace('.idea/', '');
+            // Extract the location from the file path to recursively create it if it doesn't exist.
+            var location = filePath.replace(/[^\/]*$/, '');
 
-WebStorm.prototype.copyExternalTools = function ()
-{
-    var destination = path.join(this.userPreferences(), 'tools');
-    var source = path.join(this.templateSource, 'idea', 'tools', '**', '*.*');
+            if (!fs.existsSync(location))
+                mkdir('-p', location);
 
-    templateUtil.cpRConflict(source, destination);
-};
+            if (!fs.existsSync(filePath))
+                fs.writeFileSync(filePath, ' ', 'utf8');
+        });
+    }
 
-WebStorm.prototype.copyFileTemplates = function ()
-{
-    var destination = path.join(this.userPreferences(), 'fileTemplates');
-    var source = path.join(this.templateSource, 'idea', 'fileTemplates', '**', '*.*');
+    /**
+     * WebStorm IDE settings path.
+     *
+     * Returns the IDE settings path based on the current platform.
+     *
+     * See more info from the jetbrains docs.
+     * http://www.jetbrains.com/webstorm/webhelp/project-and-ide-settings.html
+     *
+     * @returns {*}
+     */
+    WebStorm.prototype.userPreferences = function ()
+    {
+        var location;
 
-    templateUtil.cpRConflict(source, destination);
-};
+        if (templateUtil.platform === 'windows')
+            location = path.join(templateUtil.HOME, '.WebStorm8', 'config');
+        else
+            location = path.join(templateUtil.HOME, 'Library', 'Preferences', 'WebStorm8');
 
-module.exports = WebStorm;
+        return location;
+    };
+
+    WebStorm.prototype.copyExternalTools = function ()
+    {
+        var destination = path.join(this.userPreferences(), 'tools');
+        var source = path.join(this.templateSource, 'idea', 'tools', '**', '*.*');
+
+        templateUtil.cpRConflict(source, destination);
+    };
+
+    WebStorm.prototype.copyFileTemplates = function ()
+    {
+        var destination = path.join(this.userPreferences(), 'fileTemplates');
+        var source = path.join(this.templateSource, 'idea', 'fileTemplates', '**', '*.*');
+
+        templateUtil.cpRConflict(source, destination);
+    };
+
+    module.exports = WebStorm;
+}());

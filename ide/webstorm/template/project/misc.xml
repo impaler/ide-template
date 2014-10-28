@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="ProjectPlainTextFileTypeManager">
+    <% if(plainText.length > 0) { %>
+    <% _.each( plainText, function( url ){ %>
+    <file url="<%= url %>" />
+    <% }); %>
+    <% } %>
+  </component>
   <component name="ProjectRootManager" version="2" />
 </project>
-

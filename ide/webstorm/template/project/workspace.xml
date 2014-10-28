@@ -87,6 +87,14 @@
       <% if(jsDebugConfiguration.length > 0) { _.each( jsDebugConfiguration, function( debugConfiguration ){ %>
 
       <configuration default="false" name="<%= debugConfiguration.name %>" type="JavascriptDebugType" factoryName="JavaScript Debug" uri="http://localhost:<%= jsDebugPort %>/<%= debugConfiguration.indexPath %>">
+
+      <% if(jsDebugConfiguration.mapping) { %>
+        <mapping url="<%= debugConfiguration.mapping.url %>" local-file="<%= debugConfiguration.mapping.localFile %>" />
+        <RunnerSettings RunnerId="JavascriptDebugRunner" />
+        <ConfigurationWrapper RunnerId="JavascriptDebugRunner" />
+        <method />
+      <% } %>
+
       </configuration>
 
       <% }); }; %>

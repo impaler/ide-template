@@ -199,9 +199,9 @@
         var location;
 
         if (templateUtil.platform === 'windows')
-            location = path.join(templateUtil.HOME, '.WebStorm8', 'config');
+            location = path.join(templateUtil.HOME, '.WebStorm9', 'config');
         else
-            location = path.join(templateUtil.HOME, 'Library', 'Preferences', 'WebStorm8');
+            location = path.join(templateUtil.HOME, 'Library', 'Preferences', 'WebStorm9');
 
         return location;
     };

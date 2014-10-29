@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    /* global console, exec, mkdir */
+    /* globals console, exec, mkdir, __dirname */
 
     /**
      * Jetbrains WebStorm 9 project generation.
@@ -38,6 +38,11 @@
 
     util.inherits(WebStorm, IDE);
 
+    /**
+     * Use the WebStorm executable to open a project programatically.
+     *
+     * @param location
+     */
     WebStorm.prototype.open = function (location)
     {
         if (!this.validatePath(location)) return;
@@ -57,19 +62,36 @@
      * Create a new template context for an idea project.
      * if a custom context is provided it will override any default values of the resulting object.
      *
-     *
-     vcs          : [
+     * Example template context
      {
-         type: 'git',
-         path: 'file://$MODULE_DIR$'
-     }
-     ],
-     jsDebugConfiguration:[
-     {
-         name: 'test0',
-         indexPath: 'index.html'
-     }
-     ]
+            projectName         : project.projectName,
+            jshintPath          : '$PROJECT_DIR$/.jshintrc',
+            jsDebugPort         : 9000,
+            contentPaths        : [
+                {
+                    content: 'file://' + project.destination
+                }
+            ],
+            libraries           : ['jasmine-DefinitelyTyped', 'angular'],
+            selectedDebugName   : 'JavaScript Debug.' + project.projectName,
+            jsDebugConfiguration: [
+                {
+                    name     : project.projectName,
+                    uri: 'http://localhost:8000/app',
+                    mapping  : {
+                        url      : 'http://localhost:8000',
+                        localFile: '$PROJECT_DIR$'
+                    }
+                }
+            ],
+            plainText           : [
+                'file://$PROJECT_DIR$/build/app/main.js'
+            ],
+            resourceRoots       : [
+                'file://$PROJECT_DIR$/src/js-lib'
+            ],
+            projectPane: fs.readFileSync(__dirname + '/projectPane.xml')
+        };
      *
      * @param override
      * @returns {Result|Object}
@@ -99,7 +121,9 @@
     };
 
     /**
-     * Shortcut to create a project context
+     * Shortcut to create a project context with the default values
+     * This prevents an error in lodash template with undefined template tokens.
+     *
      * @param projectName
      * @param contentPaths
      * @param jsDebugPort
@@ -182,6 +206,13 @@
         return location;
     };
 
+    /**
+     * Method for copying the WebStorm external tools configuration to the local
+     * user preferences folders.
+     *
+     * http://www.jetbrains.com/webstorm/webhelp/external-tools.html
+     *
+     */
     WebStorm.prototype.copyExternalTools = function ()
     {
         var destination = path.join(this.userPreferences(), 'tools');
@@ -190,6 +221,13 @@
         templateUtil.cpRConflict(source, destination);
     };
 
+    /**
+     * Method for copying WebStorm file template configurations to the local
+     * user preferences folders.
+     *
+     * http://www.jetbrains.com/webstorm/webhelp/file-and-code-templates.html
+     *
+     */
     WebStorm.prototype.copyFileTemplates = function ()
     {
         var destination = path.join(this.userPreferences(), 'fileTemplates');

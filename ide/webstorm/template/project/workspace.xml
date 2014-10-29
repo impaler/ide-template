@@ -70,6 +70,7 @@
     <panes>
       <pane id="Scope" />
       <pane id="ProjectPane">
+        <%= projectPane %>
       </pane>
     </panes>
   </component>
@@ -86,9 +87,9 @@
 
       <% if(jsDebugConfiguration.length > 0) { _.each( jsDebugConfiguration, function( debugConfiguration ){ %>
 
-      <configuration default="false" name="<%= debugConfiguration.name %>" type="JavascriptDebugType" factoryName="JavaScript Debug" uri="http://localhost:<%= jsDebugPort %>/<%= debugConfiguration.indexPath %>">
+      <configuration default="false" name="<%= debugConfiguration.name %>" type="JavascriptDebugType" factoryName="JavaScript Debug" uri="<%= debugConfiguration.uri %>">
 
-      <% if(jsDebugConfiguration.mapping) { %>
+      <% if(debugConfiguration.mapping) { %>
         <mapping url="<%= debugConfiguration.mapping.url %>" local-file="<%= debugConfiguration.mapping.localFile %>" />
         <RunnerSettings RunnerId="JavascriptDebugRunner" />
         <ConfigurationWrapper RunnerId="JavascriptDebugRunner" />
@@ -107,13 +108,7 @@
           <method />
       </configuration>
 
-      <% }); } else { %>
-
-      <configuration default="true" type="NodeJSConfigurationType" factoryName="Node.js" working-dir="">
-          <method />
-      </configuration>
-
-      <% } %>
+      <% }); } %>
 
     <configuration default="true" type="DartUnitRunConfigurationType" factoryName="DartUnit">
       <option name="VMOptions" />

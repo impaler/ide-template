@@ -1,4 +1,6 @@
 (function () {
+    'use strict';
+    /* global console, exec, mkdir */
 
     /**
      * Jetbrains WebStorm 9 project generation.
@@ -86,6 +88,7 @@
                     excluded: []
                 }
             ],
+            projectPane             : [],
             libraries               : [],
             vcs                     : [],
             jsDebugConfiguration    : [],

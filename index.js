@@ -1,9 +1,12 @@
+/* jshint -W097 */
+/* globals console, cp, mkdir, process */
 (function () {
+    'use strict';
 
     var gulp = require('gulp'),
         fs = require('fs'),
         _ = require('lodash'),
-        ide = require('./ide/IDE'),
+        path = require('path'),
         WebStorm = require('./ide/webstorm/webstorm'),
         conflict = require('gulp-conflict');
 
@@ -18,10 +21,10 @@
             platform: platform,
 
             HOME: function () {
-                if (this.platform == 'windows')
-                    return process.env['USERPROFILE'];
+                if (this.platform === 'windows')
+                    return process.env.USERPROFILE;
                 else
-                    return process.env['HOME'];
+                    return process.env.HOME;
             },
 
             /**
@@ -54,8 +57,8 @@
                 var files = fs.readdirSync(source);
 
                 for (var i = 0; i < files.length; i++) {
-                    var sourceFile = source + "/" + files[i];
-                    var destinationFile = destination + "/" + files[i];
+                    var sourceFile = path.join(source, files[i]);
+                    var destinationFile = path.join(destination, files[i]);
 
                     if (this.isDirectory(sourceFile)) {
                         this.templateDirSync(sourceFile, destinationFile, context, opts);
@@ -118,11 +121,11 @@
                 try {
                     fs.statSync(filePath);
                 } catch (err) {
-                    if (err.code == 'ENOENT') return false;
+                    if (err.code === 'ENOENT') return false;
                 }
                 return true;
             }
-        }
+        };
     }
 
     var ideTemplate = new IDETemplate();

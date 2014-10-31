@@ -7,7 +7,7 @@
   "freeze": false,
   "immed": true,
   "indent": 2,
-  "latedef": "nofunc",
+  "latedef": false,
   "newcap": true,
   "noarg": true,
   "noempty": true,
@@ -21,12 +21,5 @@
   "maxparams": 20,
   "maxdepth": 5,
   "maxlen": 120,
-  "esnext": true,
-  "globals": {
-    "angular": false,
-    "$": false,
-    "module": false,
-    "document": false,
-    "require": false
-  }
+  "node": true
 }

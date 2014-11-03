@@ -82,6 +82,7 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="recentsLimit" value="5" />
     <property name="restartRequiresConfirmation" value="true" />
+    <% if(javascriptVersion) { %><property name="JavaScriptLanguageLevel" value="<%= javascriptVersion %>" /><% } %>
   </component>
   <component name="RunManager" selected="<%= selectedDebugName %>">
 

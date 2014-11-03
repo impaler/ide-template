@@ -47,7 +47,6 @@ WebStorm.prototype.open = function (location)
   if (!this.validatePath(location)) return;
 
   var openCommand = this.executable + ' "' + location + '"';
-  console.log(openCommand);
 
   if (templateUtil.platform === ('unix' || 'darwin'))
     exec(openCommand);
@@ -73,6 +72,7 @@ var defaultContext = {
   projectName             : 'NewProject',
   jshintPath              : './.jshintrc',
   jsDebugPort             : '63343',
+  javascriptVersion       : 'ES5',
   projectFolder           : '',
   selectedDebugName       : '',
   contentPaths            : [
@@ -123,8 +123,9 @@ WebStorm.prototype.createProject = function (destination, context)
 
   templateUtil.templateDirSync(source, destination, context);
 
-  if (context.resourceRoots.length > 0)
+  if (context.resourceRoots.length > 0) {
     stubPlainTextFiles(context.plainText, destination);
+  }
 };
 
 /**

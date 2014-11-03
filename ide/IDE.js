@@ -1,3 +1,9 @@
+/**
+ * Base class for IDE projects to implement.
+ *
+ * @param name
+ * @constructor
+ */
 'use strict';
 /* jshint unused:false*/
 /* globals console, cp, mkdir, process */
@@ -5,12 +11,6 @@
 var fs       = require('fs'),
     pathNode = require('path');
 
-/**
- * Base class for IDE projects to implement.
- *
- * @param name
- * @constructor
- */
 function IDE(name) {
   this.name = name;
   this.templateSource = 'template';
@@ -26,7 +26,6 @@ IDE.prototype = {
   createProject: function (destination, context) {
   },
   validatePath : function (path, errorMessage) {
-    'use strict';
     errorMessage = errorMessage || 'Error "' + path + '" is not a valid path.';
 
     // Nodejs does not understand HOME alias like the shell.

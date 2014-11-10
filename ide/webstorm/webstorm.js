@@ -17,7 +17,6 @@ require('shelljs/global');
 var templateUtil;
 
 function WebStorm(ide) {
-
   WebStorm.super_.apply(this, ['webstorm']);
 
   templateUtil = ide;
@@ -42,8 +41,7 @@ util.inherits(WebStorm, IDE);
  *
  * @param location
  */
-WebStorm.prototype.open = function (location)
-{
+WebStorm.prototype.open = function (location) {
   if (!this.validatePath(location)) return;
 
   var openCommand = this.executable + ' "' + location + '"';
@@ -100,8 +98,7 @@ var defaultContext = {
  * @param jsDebugPort
  * @param jshintPath
  */
-WebStorm.prototype.createProjectContext = function (projectName, contentPaths, jsDebugPort, jshintPath)
-{
+WebStorm.prototype.createProjectContext = function (projectName, contentPaths, jsDebugPort, jshintPath) {
   return {
     projectName : projectName,
     jshintPath  : jshintPath,
@@ -117,8 +114,7 @@ WebStorm.prototype.createProjectContext = function (projectName, contentPaths, j
  * @param destination
  * @param context
  */
-WebStorm.prototype.createProject = function (destination, context)
-{
+WebStorm.prototype.createProject = function (destination, context) {
   context = this.createContext(context);
 
   var source = path.join(String(__dirname), 'template', 'project');
@@ -166,14 +162,13 @@ function stubPlainTextFiles(resourceRoots, destination) {
  *
  * @returns {*}
  */
-WebStorm.prototype.userPreferences = function ()
-{
+WebStorm.prototype.userPreferences = function () {
   var location;
 
   if (templateUtil.platform === 'windows')
-    location = path.join(templateUtil.HOME, '.WebStorm9', 'config');
+    location = path.join(templateUtil.HOME(), '.WebStorm9', 'config');
   else
-    location = path.join(templateUtil.HOME, 'Library', 'Preferences', 'WebStorm9');
+    location = path.join(templateUtil.HOME(), 'Library', 'Preferences', 'WebStorm9');
 
   return location;
 };
@@ -185,12 +180,9 @@ WebStorm.prototype.userPreferences = function ()
  * http://www.jetbrains.com/webstorm/webhelp/external-tools.html
  *
  */
-WebStorm.prototype.copyExternalTools = function ()
-{
+WebStorm.prototype.copyExternalTools = function (source) {
   var destination = path.join(this.userPreferences(), 'tools');
-  var source = path.join(this.templateSource, 'idea', 'tools', '**', '*.*');
-
-  templateUtil.cpRConflict(source, destination);
+  cp(source, destination);
 };
 
 /**
@@ -200,12 +192,9 @@ WebStorm.prototype.copyExternalTools = function ()
  * http://www.jetbrains.com/webstorm/webhelp/file-and-code-templates.html
  *
  */
-WebStorm.prototype.copyFileTemplates = function ()
-{
+WebStorm.prototype.copyFileTemplates = function (source) {
   var destination = path.join(this.userPreferences(), 'fileTemplates');
-  var source = path.join(this.templateSource, 'idea', 'fileTemplates', '**', '*.*');
-
-  templateUtil.cpRConflict(source, destination);
+  cp(source, destination);
 };
 
 /**
@@ -215,8 +204,7 @@ WebStorm.prototype.copyFileTemplates = function ()
  *
  * @returns {*}
  */
-WebStorm.prototype.webstormExecutablePath = function ()
-{
+WebStorm.prototype.webstormExecutablePath = function () {
   if (this.platform === 'windows') {
     var jetBrainsFolder = 'C:/Program Files/JetBrains/';
     var jetBrainsFolder86 = 'C:/Program Files (x86)/JetBrains/';

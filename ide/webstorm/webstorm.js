@@ -76,6 +76,7 @@ var defaultContext = {
   projectFolder           : '',
   selectedDebugName       : '',
   resourceRoots           : [],
+  watcherSuppressedTasks  : [],
   plainText               : '',
   contentPaths            : [
     {

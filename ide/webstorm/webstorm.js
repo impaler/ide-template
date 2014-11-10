@@ -75,6 +75,8 @@ var defaultContext = {
   javascriptVersion       : 'ES5',
   projectFolder           : '',
   selectedDebugName       : '',
+  resourceRoots           : [],
+  plainText               : '',
   contentPaths            : [
     {
       content : 'file://$MODULE_DIR$',

@@ -14,37 +14,46 @@ _        = require('lodash');
 
 require('shelljs/global');
 
-var templateUtil;
+var templateUtil = require('../../util');
 
-function WebStorm(ide) {
+function WebStorm() {
   WebStorm.super_.apply(this, ['webstorm']);
-
-  templateUtil = ide;
-
-  if (templateUtil.platform === ('unix' || 'darwin')) {
-    this.executable = 'wstorm';
-  } else {
-    // todo in windows check if webstorm.exe exists otherwise prompt for a path and save it to disk}
-    var webStormPath = path.resolve('/', 'Program Files (x86)/JetBrains/WebStorm 8.0.1/bin/WebStorm.exe');
-
-    this.executable = '"' + webStormPath + '"';
-
-    if (!templateUtil.fileExists(this.executable))
-      console.error('Error the WebStorm.exe is not present at', this.executable);
-  }
 }
 
 util.inherits(WebStorm, IDE);
+
+WebStorm.prototype.getExecutable = function (override) {
+  if (override) {
+    this.executable = override;
+    return this.executable;
+  }
+
+  if (templateUtil.platform === ('unix' || 'darwin')) {
+    this.executable = 'wstorm';
+
+  } else {
+    var webStormPath = this.webstormExecutablePath();
+
+    if(webStormPath.length) {
+      this.executable = '"' + webStormPath[0] + '"';
+
+      if (!templateUtil.fileExists(this.executable))
+        console.error('Error the WebStorm.exe is not present at', this.executable);
+    }
+  }
+
+  return this.executable;
+};
 
 /**
  * Use the WebStorm executable to open a project programatically.
  *
  * @param location
  */
-WebStorm.prototype.open = function (location) {
+WebStorm.prototype.open = function (location, webstorm) {
   if (!this.validatePath(location)) return;
 
-  var openCommand = this.executable + ' "' + location + '"';
+  var openCommand = this.getExecutable(webstorm) + ' "' + location + '"';
 
   if (templateUtil.platform === ('unix' || 'darwin'))
     exec(openCommand);
@@ -59,34 +68,33 @@ WebStorm.prototype.open = function (location) {
  * if a custom context is provided it will override any default values of the resulting object.
  *
  * @param override
- * @returns {defaultContext|Object}
+ * @returns {Object}
  */
 WebStorm.prototype.createContext = function (override)
 {
-  return _.merge(defaultContext, override);
-};
-
-var defaultContext = {
-  projectName             : 'NewProject',
-  jshintPath              : './.jshintrc',
-  jsDebugPort             : '63343',
-  javascriptVersion       : 'ES5',
-  projectFolder           : '',
-  selectedDebugName       : '',
-  resourceRoots           : [],
-  watcherSuppressedTasks  : [],
-  plainText               : '',
-  contentPaths            : [
-    {
-      content : 'file://$MODULE_DIR$',
-      excluded: []
-    }
-  ],
-  projectPane             : [],
-  libraries               : [],
-  vcs                     : [],
-  jsDebugConfiguration    : [],
-  nodejsDebugConfiguration: []
+  var context = {
+    projectName             : 'NewProject',
+    jshintPath              : './.jshintrc',
+    jsDebugPort             : '63343',
+    javascriptVersion       : 'ES5',
+    projectFolder           : '',
+    selectedDebugName       : '',
+    resourceRoots           : [],
+    watcherSuppressedTasks  : [],
+    plainText               : '',
+    contentPaths            : [
+      {
+        content : 'file://$MODULE_DIR$',
+        excluded: []
+      }
+    ],
+    projectPane             : [],
+    libraries               : [],
+    vcs                     : [],
+    jsDebugConfiguration    : [],
+    nodejsDebugConfiguration: []
+  };
+  return _.merge(context, override);
 };
 
 /**
@@ -128,7 +136,7 @@ WebStorm.prototype.createProject = function (destination, context) {
 };
 
 /**
- * WebStorm will remove any plain text files specified on first open
+ * webStorm will remove any plain text files specified on first open
  * if they do not exists.
  *
  * For example this lets files from a build be marked as plain text before they exist
@@ -185,12 +193,21 @@ WebStorm.prototype.copyExternalTools = function (source) {
   cp(source, destination);
 };
 
+/**
+ * Write an external tool file to the user's local system.
+ * @param content
+ * @param fileName
+ */
 WebStorm.prototype.writeExternalTool = function (content, fileName) {
   var destination = path.join(this.userPreferences(), 'tools', fileName);
-  console.log('destination', destination)
   fs.writeFileSync(destination, content, 'utf8');
 };
 
+/**
+ * Create an external tool template xml file with a given context object.
+ * @param override
+ * @returns {*} plain text of the xml
+ */
 WebStorm.prototype.createExternalTool = function (override) {
   var context = {
     name : '',
@@ -254,18 +271,20 @@ WebStorm.prototype.webstormExecutablePath = function () {
     var jetBrainsFolder = 'C:/Program Files/JetBrains/';
     var jetBrainsFolder86 = 'C:/Program Files (x86)/JetBrains/';
 
-    if (!fs.existsSync(jetBrainsFolder) && !fs.existsSync(jetBrainsFolder86))
+    if (!fs.existsSync(jetBrainsFolder) && !fs.existsSync(jetBrainsFolder86)) {
+      console.error('Are you sure you have WebStorm installed?');
       return null;
+    }
 
-    var webStormFolders = validateWebStormInstall(jetBrainsFolder);
-    webStormFolders = webStormFolders.concat(validateWebStormInstall(jetBrainsFolder));
+    var webStormFolders = locateWebStormInstall(jetBrainsFolder);
+    webStormFolders = webStormFolders.concat(locateWebStormInstall(jetBrainsFolder));
 
     return webStormFolders;
   } else
     return 'wstorm';
 };
 
-function validateWebStormInstall(path) {
+function locateWebStormInstall(path) {
   var executableBinPath = '/bin/WebStorm.exe"';
   var rootFolders = fs.readdirSync(path);
 

@@ -1,5 +1,5 @@
 'use strict';
-/* globals console, exec, mkdir, __dirname */
+/* globals console, exec, mkdir, cp, __dirname */
 
 /**
  * Jetbrains WebStorm 9 project generation.
@@ -183,6 +183,51 @@ WebStorm.prototype.userPreferences = function () {
 WebStorm.prototype.copyExternalTools = function (source) {
   var destination = path.join(this.userPreferences(), 'tools');
   cp(source, destination);
+};
+
+WebStorm.prototype.writeExternalTool = function (content, fileName) {
+  var destination = path.join(this.userPreferences(), 'tools', fileName);
+  console.log('destination', destination)
+  fs.writeFileSync(destination, content, 'utf8');
+};
+
+WebStorm.prototype.createExternalTool = function (override) {
+  var context = {
+    name : '',
+    tools: [
+      {
+        name               : 'default',
+        showInMainMenu     : 'true',
+        showInEditor       : 'true',
+        showInProject      : 'true',
+        showInSearchPopup  : 'true',
+        disabled           : 'false',
+        useConsole         : 'true',
+        showConsoleOnStdOut: 'false',
+        showConsoleOnStdErr: 'false',
+        synchronizeAfterRun: 'true',
+        exec               : [
+          {
+            name : '',
+            value: ''
+          }
+        ],
+        filter             : [
+          {
+            name : '',
+            value: ''
+          }
+        ]
+      }
+    ]
+  };
+
+  context = _.merge(context, override);
+
+  var source = path.join(String(__dirname), 'template', 'externalTool.xml');
+  var toolTemplate = fs.readFileSync(source);
+
+  return _.template(toolTemplate, context);
 };
 
 /**

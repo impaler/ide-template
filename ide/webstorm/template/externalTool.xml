@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolSet name="<%= name %>">
+    <% _.forEach(tools, function(tool) { %>
+    <tool name="<%= tool.name %>"
+          showInMainMenu="<%= tool.showInMainMenu %>"
+          showInEditor="<%= tool.showInEditor %>"
+          showInProject="<%= tool.showInProject %>"
+          showInSearchPopup="<%= tool.showInSearchPopup %>"
+          disabled="<%= tool.disabled %>"
+          useConsole="<%= tool.useConsole %>"
+          showConsoleOnStdOut="<%= tool.showConsoleOnStdOut %>"
+          showConsoleOnStdErr="<%= tool.showConsoleOnStdErr %>"
+          synchronizeAfterRun="<%= tool.synchronizeAfterRun %>">
+        <exec>
+            <% _.forEach(tool.exec, function(option) { %>
+            <option name="<%= option.name %>" value="<%= option.value %>"/>
+            <% }); %>
+        </exec>
+        <filter>
+            <% _.forEach(tool.filter, function(option) { %>
+            <option name="<%= option.name %>" value="<%= option.value %>"/>
+            <% }); %>
+        </filter>
+    </tool>
+    <% }); %>
+</toolSet>
+

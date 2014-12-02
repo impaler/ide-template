@@ -32,13 +32,10 @@ WebStorm.prototype.getExecutable = function (override) {
     this.executable = 'wstorm';
 
   } else {
-    var webStormPath = this.webstormExecutablePath();
+    var webStormExecutables = this.webstormExecutablePath();
 
-    if(webStormPath.length) {
-      this.executable = '"' + webStormPath[0] + '"';
-
-      if (!templateUtil.fileExists(this.executable))
-        console.error('Error the WebStorm.exe is not present at', this.executable);
+    if(webStormExecutables.length) {
+      this.executable = '"' + webStormExecutables[0] + '"';
     }
   }
 
@@ -54,11 +51,7 @@ WebStorm.prototype.open = function (location, webstorm) {
   if (!this.validatePath(location)) return;
 
   var openCommand = this.getExecutable(webstorm) + ' "' + location + '"';
-
-  if (templateUtil.platform === ('unix' || 'darwin'))
-    exec(openCommand);
-  else
-    exec(openCommand);
+  exec(openCommand);
 
   console.log('Please give WebStorm a chance to complete it\'s indexing before opening.');
 };
@@ -267,37 +260,48 @@ WebStorm.prototype.copyFileTemplates = function (source) {
  * @returns {*}
  */
 WebStorm.prototype.webstormExecutablePath = function () {
-  if (this.platform === 'windows') {
+  if (templateUtil.platform === 'windows') {
     var jetBrainsFolder = 'C:/Program Files/JetBrains/';
     var jetBrainsFolder86 = 'C:/Program Files (x86)/JetBrains/';
+    var webStormFolders;
 
-    if (!fs.existsSync(jetBrainsFolder) && !fs.existsSync(jetBrainsFolder86)) {
-      console.error('Are you sure you have WebStorm installed?');
-      return null;
+    if (fs.existsSync(jetBrainsFolder)) {
+      webStormFolders = locateWebStormInstall(jetBrainsFolder);
+    } else if(fs.existsSync(jetBrainsFolder86)) {
+      webStormFolders = locateWebStormInstall(jetBrainsFolder86);
     }
 
-    var webStormFolders = locateWebStormInstall(jetBrainsFolder);
-    webStormFolders = webStormFolders.concat(locateWebStormInstall(jetBrainsFolder));
-
+    webStormFolders = webStormFolders.reverse().concat();
     return webStormFolders;
+
   } else
     return 'wstorm';
 };
 
 function locateWebStormInstall(path) {
-  var executableBinPath = '/bin/WebStorm.exe"';
+  var executableBinPath = '/bin/WebStorm.exe';
   var rootFolders = fs.readdirSync(path);
+  var executablePath;
+  var executablePaths = [];
 
   _.forEach(rootFolders, function (folder) {
     if (folder.indexOf('WebStorm') !== -1) {
-      var executablePath = path + folder + executableBinPath;
+
+      executablePath = path + folder + executableBinPath;
 
       if (fs.existsSync(executablePath))
-        rootFolders.push(executablePath);
+        executablePaths.push(executablePath);
     }
   });
 
-  return rootFolders;
+  if (executablePaths.length === 0 ) {
+    console.error('ERROR: Unable to locate WebStorm.exe in Progam Files / Program Files (x86) on your computer. \n' +
+    'If you have a custom location for WebStorm please specify it using `setWebStormExePath()`.');
+    // TODO Create a utility function `setWebStormExePath()`
+    process.exit(0);
+  }
+
+  return executablePaths;
 }
 
 module.exports = WebStorm;

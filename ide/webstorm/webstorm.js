@@ -256,7 +256,7 @@ WebStorm.prototype.createExternalTool = function (override) {
  */
 WebStorm.prototype.copyFileTemplates = function (source) {
   var destination = path.join(this.userPreferences(), 'fileTemplates');
-  cp(source, destination);
+  templateUtil.cpR(path.join(source, '*'), destination);
 };
 
 /**

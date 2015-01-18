@@ -31,7 +31,8 @@ WebStorm.prototype.getExecutable = function (override) {
   if (templateUtil.platform === ('unix' || 'darwin')) {
     this.executable = 'wstorm';
 
-  } else {
+  }
+  else {
     var webStormExecutables = this.webstormExecutablePath();
 
     if(webStormExecutables.length) {
@@ -164,14 +165,15 @@ function stubPlainTextFiles(resourceRoots, destination) {
  * @returns {*}
  */
 WebStorm.prototype.userPreferences = function () {
-  var location;
-
-  if (templateUtil.platform === 'windows')
-    location = path.join(templateUtil.HOME(), '.WebStorm9', 'config');
-  else
-    location = path.join(templateUtil.HOME(), 'Library', 'Preferences', 'WebStorm9');
-
-  return location;
+  switch (templateUtil.platform) {
+  case 'unix':
+  case 'windows':
+    return path.join(templateUtil.HOME(), '.WebStorm9', 'config');
+  case 'darwin':
+    return path.join(templateUtil.HOME(), 'Library', 'Preferences', 'WebStorm9');
+  default:
+    return;
+  }
 };
 
 /**
@@ -267,15 +269,17 @@ WebStorm.prototype.webstormExecutablePath = function () {
 
     if (fs.existsSync(jetBrainsFolder)) {
       webStormFolders = locateWebStormInstall(jetBrainsFolder);
-    } else if(fs.existsSync(jetBrainsFolder86)) {
+    }
+    else if(fs.existsSync(jetBrainsFolder86)) {
       webStormFolders = locateWebStormInstall(jetBrainsFolder86);
     }
 
     webStormFolders = webStormFolders.reverse().concat();
     return webStormFolders;
-
-  } else
+  }
+  else {
     return 'wstorm';
+  }
 };
 
 function locateWebStormInstall(path) {

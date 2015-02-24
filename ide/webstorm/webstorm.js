@@ -55,6 +55,21 @@ WebStorm.prototype.executable = function () {
 };
 
 /**
+ * Utility to validate the executable path that will be used to open WebStorm
+ * @returns {boolean}
+ */
+WebStorm.prototype.validateExecutable = function() {
+  var executable = WebStorm.prototype.executable();
+  var isValid = false;
+
+  if(executable !== null) {
+    isValid = io.existsFileSync(executable);
+  }
+
+  return isValid;
+};
+
+/**
  * Create a new WebStorm .idea project at a given destination with
  * a specific template context.
  *
@@ -220,9 +235,8 @@ WebStorm.prototype.createExternalTool = function (context, fileName) {
 };
 
 /**
- * webStorm will remove any plain text files specified on first open
- * if they do not exists.
- *
+ * When generating the .idea project WebStorm will remove any plain text files specified
+ * on first open if they do not exist.
  * For example this lets files from a build be marked as plain text before they exist
  * by stubbing an empty file at their expected position.
  * @param resourceRoots
@@ -245,7 +259,7 @@ function stubPlainTextFiles(resourceRoots, destination) {
 }
 
 /**
- * The user preferences directory for webstorm on the current platform
+ * The user preferences directory for WebStorm on the current platform.
  * @returns {string}
  */
 function userPreferencesDirectory() {

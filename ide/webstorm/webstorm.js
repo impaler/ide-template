@@ -1,20 +1,24 @@
 'use strict';
-/* globals console, exec, mkdir, cp, __dirname */
+/* globals console, mkdir, __dirname */
 
 /**
- * Jetbrains WebStorm 9 project generation.
- *
- * @type {ideTemplate|exports}
+ * Jetbrains WebStorm IDE project generation.
+ *  http://www.jetbrains.com/webstorm
+ *  @type {IDE}
  */
-var util = require('util'),
-IDE      = require('../IDE'),
-fs       = require('fs'),
-path     = require('path'),
-_        = require('lodash');
-
 require('shelljs/global');
 
+var util = require('util'),
+    IDE  = require('../IDE'),
+    fs   = require('fs'),
+    path = require('path'),
+    _    = require('lodash');
+
+var platform = require('../../lib/platform');
+var io = require('../../lib/io');
 var templateUtil = require('../../util');
+
+module.exports = WebStorm;
 
 function WebStorm() {
   WebStorm.super_.apply(this, ['webstorm']);
@@ -22,39 +26,71 @@ function WebStorm() {
 
 util.inherits(WebStorm, IDE);
 
-WebStorm.prototype.getExecutable = function (override) {
-  if (override) {
-    this.executable = override;
-    return this.executable;
+/**
+ * Use the WebStorm executable to open a project programatically.
+ * @param location
+ */
+WebStorm.prototype.open = function (location) {
+  console.log('Please give WebStorm a chance to complete indexing your project.');
+  WebStorm.super_.prototype.open.apply(this, [location]);
+};
+
+WebStorm.prototype.executable = function () {
+  if (platform.isWindows()) {
+    return path.join(
+      io.maximisePath(
+        io.reduceDirectories('C:/Program Files/JetBrains', 'C:/Program Files (x86)/JetBrains'),
+        /^WebStorm\s*[.\d]+$/, 'bin'),
+      'Webstorm.exe');
+
+  } else if (platform.isMacOS()) {
+    return '/Applications/WebStorm.app/Contents/MacOS/webide';
+
+  } else if (platform.isUnix()) {
+    return path.join('opt/webstorm/bin/webstorm.sh');
+
+  } else {
+    return null;
   }
-
-  if (templateUtil.platform === ('unix' || 'darwin')) {
-    this.executable = 'wstorm';
-
-  }
-  else {
-    var webStormExecutables = this.webstormExecutablePath();
-
-    if(webStormExecutables.length) {
-      this.executable = '"' + webStormExecutables[0] + '"';
-    }
-  }
-
-  return this.executable;
 };
 
 /**
- * Use the WebStorm executable to open a project programatically.
+ * Create a new WebStorm .idea project at a given destination with
+ * a specific template context.
  *
- * @param location
+ * @param destination
+ * @param context
  */
-WebStorm.prototype.open = function (location, webstorm) {
-  if (!this.validatePath(location)) return;
+WebStorm.prototype.createProject = function (destination, context) {
+  context = this.createContext(context);
 
-  var openCommand = this.getExecutable(webstorm) + ' "' + location + '"';
-  exec(openCommand);
+  var source = path.join(String(__dirname), 'template', 'project');
+  destination = path.join(destination, '.idea');
 
-  console.log('Please give WebStorm a chance to complete it\'s indexing before opening.');
+  templateUtil.templateDirSync(source, destination, context);
+
+  if (context.resourceRoots.length > 0) {
+    stubPlainTextFiles(context.plainText, destination);
+  }
+};
+
+/**
+ * Method for copying WebStorm file template configurations to the local
+ * user preferences folders.
+ *
+ * http://www.jetbrains.com/webstorm/webhelp/file-and-code-templates.html
+ *
+ */
+WebStorm.prototype.copyFileTemplates = function (source) {
+  var destination = path.join(userPreferencesDirectory(), 'fileTemplates');
+  var isValid = io.existsDirectorySync(destination);
+
+  if (!isValid) {
+    console.log('Failed to locate Webstorm templates. Expected directory:');
+    console.log('  ' + destination);
+  } else {
+    io.replaceMatchFilesSync(/^angularity/, source, destination);
+  }
 };
 
 /**
@@ -64,8 +100,7 @@ WebStorm.prototype.open = function (location, webstorm) {
  * @param override
  * @returns {Object}
  */
-WebStorm.prototype.createContext = function (override)
-{
+WebStorm.prototype.createContext = function (override) {
   var context = {
     projectName             : 'NewProject',
     jshintPath              : './.jshintrc',
@@ -110,92 +145,29 @@ WebStorm.prototype.createProjectContext = function (projectName, contentPaths, j
 };
 
 /**
- * Create a new WebStorm .idea project at a given destination with
- * a specific template context.
- *
- * @param destination
- * @param context
+ * Method for copying WebStorm configuration to the local
+ * user preferences folders.
+ * @see http://www.jetbrains.com/webstorm/webhelp/external-tools.html
  */
-WebStorm.prototype.createProject = function (destination, context) {
-  context = this.createContext(context);
-
-  var source = path.join(String(__dirname), 'template', 'project');
-  destination = path.join(destination, '.idea');
-
-  templateUtil.templateDirSync(source, destination, context);
-
-  if (context.resourceRoots.length > 0) {
-    stubPlainTextFiles(context.plainText, destination);
+WebStorm.prototype.copyCodeStyle = function (source) {
+  if (!fs.existsSync(source)) {
+    console.error('WebStorm.copyCodeStyle() the provided path for the codestyle xml does not exist at', source);
   }
-};
 
-/**
- * webStorm will remove any plain text files specified on first open
- * if they do not exists.
- *
- * For example this lets files from a build be marked as plain text before they exist
- * by stubbing an empty file at their expected position.
- * @param resourceRoots
- * @param destination
- */
-function stubPlainTextFiles(resourceRoots, destination) {
-  _.forEach(resourceRoots, function (resource) {
-    // Replace the webstorm file:// scheme with an absolute file path
-    var filePath = resource.replace('file://$PROJECT_DIR$', destination);
-    filePath = filePath.replace('.idea/', '');
-    // Extract the location from the file path to recursively create it if it doesn't exist.
-    var location = filePath.replace(/[^\/]*$/, '');
-
-    if (!fs.existsSync(location))
-      mkdir('-p', location);
-
-    if (!fs.existsSync(filePath))
-      fs.writeFileSync(filePath, ' ', 'utf8');
-  });
-}
-
-/**
- * WebStorm IDE settings path.
- *
- * Returns the IDE settings path based on the current platform.
- *
- * See more info from the jetbrains docs.
- * http://www.jetbrains.com/webstorm/webhelp/project-and-ide-settings.html
- *
- * @returns {*}
- */
-WebStorm.prototype.userPreferences = function () {
-  switch (templateUtil.platform) {
-  case 'unix':
-  case 'windows':
-    return path.join(templateUtil.HOME(), '.WebStorm9', 'config');
-  case 'darwin':
-    return path.join(templateUtil.HOME(), 'Library', 'Preferences', 'WebStorm9');
-  default:
-    return;
-  }
+  var basename = path.basename(source);
+  var destination = path.join(userPreferencesDirectory(), 'codestyles', basename);
+  io.copyFileSync(source, destination);
 };
 
 /**
  * Method for copying the WebStorm external tools configuration to the local
  * user preferences folders.
  *
- * http://www.jetbrains.com/webstorm/webhelp/external-tools.html
- *
+ * @see http://www.jetbrains.com/webstorm/webhelp/external-tools.html
  */
 WebStorm.prototype.copyExternalTools = function (source) {
-  var destination = path.join(this.userPreferences(), 'tools');
-  cp(source, destination);
-};
-
-/**
- * Write an external tool file to the user's local system.
- * @param content
- * @param fileName
- */
-WebStorm.prototype.writeExternalTool = function (content, fileName) {
-  var destination = path.join(this.userPreferences(), 'tools', fileName);
-  fs.writeFileSync(destination, content, 'utf8');
+  var destination = path.join(userPreferencesDirectory(), 'tools');
+  io.copyFileSync(source, destination);
 };
 
 /**
@@ -203,8 +175,8 @@ WebStorm.prototype.writeExternalTool = function (content, fileName) {
  * @param override
  * @returns {*} plain text of the xml
  */
-WebStorm.prototype.createExternalTool = function (override) {
-  var context = {
+WebStorm.prototype.createExternalTool = function (context, fileName) {
+  var baseContext = {
     name : '',
     tools: [
       {
@@ -233,79 +205,51 @@ WebStorm.prototype.createExternalTool = function (override) {
       }
     ]
   };
+  // Use the base context to create a new tool template
+  context = _.merge(baseContext, context);
 
-  context = _.merge(context, override);
+  var templateSource = path.join(String(__dirname), 'template', 'externalTool.xml');
+  var toolTemplate = fs.readFileSync(templateSource);
+  var content = _.template(toolTemplate, context);
 
-  var source = path.join(String(__dirname), 'template', 'externalTool.xml');
-  var toolTemplate = fs.readFileSync(source);
+  var toolsPath = path.join(userPreferencesDirectory(), 'tools');
+  io.validateDirectorySync(toolsPath);
+  var destination = path.join(toolsPath, fileName);
 
-  return _.template(toolTemplate, context);
+  fs.writeFileSync(destination, content, 'utf8');
 };
 
 /**
- * Method for copying WebStorm file template configurations to the local
- * user preferences folders.
+ * webStorm will remove any plain text files specified on first open
+ * if they do not exists.
  *
- * http://www.jetbrains.com/webstorm/webhelp/file-and-code-templates.html
- *
+ * For example this lets files from a build be marked as plain text before they exist
+ * by stubbing an empty file at their expected position.
+ * @param resourceRoots
+ * @param destination
  */
-WebStorm.prototype.copyFileTemplates = function (source) {
-  var destination = path.join(this.userPreferences(), 'fileTemplates');
-  templateUtil.cpR(path.join(source, '*'), destination);
-};
+function stubPlainTextFiles(resourceRoots, destination) {
+  _.forEach(resourceRoots, function (resource) {
+    // Replace the webstorm file:// scheme with an absolute file path
+    var filePath = resource.replace('file://$PROJECT_DIR$', destination);
+    filePath = filePath.replace('.idea/', '');
+    // Extract the location from the file path to recursively create it if it doesn't exist.
+    var location = filePath.replace(/[^\/]*$/, '');
 
-/**
- * Resolve the WebStorm executable path based on the environment.
- * For windows it will search through the 'Program Files' directory
- * and return an Array of paths containing the installs.
- *
- * @returns {*}
- */
-WebStorm.prototype.webstormExecutablePath = function () {
-  if (templateUtil.platform === 'windows') {
-    var jetBrainsFolder = 'C:/Program Files/JetBrains/';
-    var jetBrainsFolder86 = 'C:/Program Files (x86)/JetBrains/';
-    var webStormFolders;
+    if (!fs.existsSync(location))
+      mkdir('-p', location);
 
-    if (fs.existsSync(jetBrainsFolder)) {
-      webStormFolders = locateWebStormInstall(jetBrainsFolder);
-    }
-    else if(fs.existsSync(jetBrainsFolder86)) {
-      webStormFolders = locateWebStormInstall(jetBrainsFolder86);
-    }
-
-    webStormFolders = webStormFolders.reverse().concat();
-    return webStormFolders;
-  }
-  else {
-    return 'wstorm';
-  }
-};
-
-function locateWebStormInstall(path) {
-  var executableBinPath = '/bin/WebStorm.exe';
-  var rootFolders = fs.readdirSync(path);
-  var executablePath;
-  var executablePaths = [];
-
-  _.forEach(rootFolders, function (folder) {
-    if (folder.indexOf('WebStorm') !== -1) {
-
-      executablePath = path + folder + executableBinPath;
-
-      if (fs.existsSync(executablePath))
-        executablePaths.push(executablePath);
-    }
+    if (!fs.existsSync(filePath))
+      fs.writeFileSync(filePath, ' ', 'utf8');
   });
-
-  if (executablePaths.length === 0 ) {
-    console.error('ERROR: Unable to locate WebStorm.exe in Progam Files / Program Files (x86) on your computer. \n' +
-    'If you have a custom location for WebStorm please specify it using `setWebStormExePath()`.');
-    // TODO Create a utility function `setWebStormExePath()`
-    process.exit(0);
-  }
-
-  return executablePaths;
 }
 
-module.exports = WebStorm;
+/**
+ * The user preferences directory for webstorm on the current platform
+ * @returns {string}
+ */
+function userPreferencesDirectory() {
+  var home = platform.userHomeDirectory();
+  return io.maximisePath(home, /^\.WebStorm\s*[.\d]+$/, 'config') ||         // windows|unix
+    io.maximisePath(home, 'Library', 'Preferences', /^WebStorm\s*[.\d]+$/);  // darwin
+}

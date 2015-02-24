@@ -1,4 +1,6 @@
 {
+
+
   "bitwise": true,
   "camelcase": true,
   "curly": false,
@@ -17,7 +19,7 @@
   "quotmark": "single",
   "undef": true,
   "unused": true,
-  "strict": true,
+  "strict": false,
   "maxparams": 20,
   "maxdepth": 5,
   "maxlen": 120,

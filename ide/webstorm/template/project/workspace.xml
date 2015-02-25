@@ -84,6 +84,11 @@
     <property name="restartRequiresConfirmation" value="true" />
     <% if(javascriptVersion) { %><property name="JavaScriptLanguageLevel" value="<%= javascriptVersion %>" /><% } %>
   </component>
+    <% if(JsKarmaPackageDirSetting) { %>
+    <component name="JsKarmaPackageDirSetting">
+        <data><%= JsKarmaPackageDirSetting %></data>
+    </component>
+    <% } %>
   <component name="RunManager" selected="<%= selectedDebugName %>">
 
       <% if(jsDebugConfiguration.length > 0) { _.each( jsDebugConfiguration, function( debugConfiguration ){ %>
@@ -100,6 +105,26 @@
       </configuration>
 
       <% }); }; %>
+
+      <% if(karmaDebugConfiguration.length > 0) { _.each( karmaDebugConfiguration, function( debugConfiguration ){ %>
+
+      <configuration default="false" name="<%= debugConfiguration.name %>" type="JavaScriptTestRunnerKarma" factoryName="Karma" config-file="<%= debugConfiguration.configFile %>" browsers="<%= debugConfiguration.browsers %>">
+
+          <% if(debugConfiguration.env.length > 0) { _.each( debugConfiguration.env, function( env ){ %>
+              <env name="<%= env.name %>" value="<%= env.value %>" />
+              <% }); } else { %>
+              <envs />
+          <% }; %>
+
+          <method>
+              <% if(debugConfiguration.tasks.length > 0) { _.each( debugConfiguration.tasks, function( task ){ %>
+              <option name="ToolBeforeRunTask" enabled="true" actionId="<%= task.name %>" />
+              <% }); }; %>
+          </method>
+
+      </configuration>
+
+      <% }); } %>
 
       <% if(nodejsDebugConfiguration.length > 0) { _.each( nodejsDebugConfiguration, function( debugConfiguration ){ %>
 
@@ -127,10 +152,6 @@
       <option name="saveOutputToFile" value="false" />
       <option name="showConsoleOnStdErr" value="false" />
       <option name="showConsoleOnStdOut" value="false" />
-      <method />
-    </configuration>
-    <configuration default="true" type="JavaScriptTestRunnerKarma" factoryName="Karma" config-file="">
-      <envs />
       <method />
     </configuration>
     <configuration default="true" type="JSTestDriver:ConfigurationType" factoryName="JsTestDriver">

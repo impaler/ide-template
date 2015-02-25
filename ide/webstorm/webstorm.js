@@ -126,6 +126,7 @@ WebStorm.prototype.createContext = function (override) {
     jsDebugPort             : '63343',
     javascriptVersion       : 'ES5',
     projectFolder           : '',
+    JsKarmaPackageDirSetting: undefined,
     selectedDebugName       : '',
     resourceRoots           : [],
     watcherSuppressedTasks  : [],
@@ -140,6 +141,7 @@ WebStorm.prototype.createContext = function (override) {
     libraries               : [],
     vcs                     : [],
     jsDebugConfiguration    : [],
+    karmaDebugConfiguration : [],
     nodejsDebugConfiguration: []
   };
   return _.merge(context, override);

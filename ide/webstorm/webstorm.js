@@ -36,7 +36,10 @@ WebStorm.prototype.open = function (location) {
 };
 
 WebStorm.prototype.executable = function () {
-  if (platform.isWindows()) {
+  if (this.customExecutable !== null) {
+    return this.customExecutable;
+
+  } else if (platform.isWindows()) {
     return path.join(
       io.maximisePath(
         io.reduceDirectories('C:/Program Files/JetBrains', 'C:/Program Files (x86)/JetBrains'),
@@ -58,12 +61,13 @@ WebStorm.prototype.executable = function () {
  * Utility to validate the executable path that will be used to open WebStorm
  * @returns {boolean}
  */
-WebStorm.prototype.validateExecutable = function() {
-  var executable = WebStorm.prototype.executable();
+WebStorm.prototype.validateExecutable = function () {
+  var executablePath = this.executable();
   var isValid = false;
 
-  if(executable !== null) {
-    isValid = io.existsFileSync(executable);
+  if (executablePath !== null) {
+    isValid = io.existsFileSync(executablePath, 'The path to WebStorm is not valid ' + executablePath +
+    'you can assign a custom one with `ideTemplate.webStorm.customExecutable = <path to webstorm>`');
   }
 
   return isValid;

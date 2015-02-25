@@ -29,6 +29,7 @@ IDE.prototype = {
     console.error('Error executable() is not implemented for this IDE', this.name);
     process.exit(1);
   },
+  customExecutable  : null,
   validateExecutable: function () {
     console.error('Error validateExecutable() is not implemented for this IDE', this.name);
     process.exit(1);

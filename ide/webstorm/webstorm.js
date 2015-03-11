@@ -137,13 +137,17 @@ WebStorm.prototype.createContext = function (override) {
         excluded: []
       }
     ],
-    projectPane             : [],
+    projectView             : undefined,
     libraries               : [],
     vcs                     : [],
     jsDebugConfiguration    : [],
     karmaDebugConfiguration : [],
     nodejsDebugConfiguration: []
   };
+  if(override.projectView) {
+    override.projectView = writeProjectViewTemplate(override.projectView);
+  }
+
   return _.merge(context, override);
 };
 
@@ -282,4 +286,19 @@ function userPreferencesDirectory() {
   var home = platform.userHomeDirectory();
   return io.maximisePath(home, /^\.WebStorm\s*[.\d]+$/, 'config') ||         // windows|unix
     io.maximisePath(home, 'Library', 'Preferences', /^WebStorm\s*[.\d]+$/);  // darwin
+}
+
+/**
+ * Utility to write the ProjectView node require for project pane default in the .idea/workspace.xml.
+ * @param rootPath (the name of the project root so tree node will be open in the project)
+ * @returns {string}
+ */
+function writeProjectViewTemplate(rootPath) {
+  var context = {
+    rootPath: rootPath
+  };
+
+  var templateSource = path.join(String(__dirname), 'template', 'projectView.xml');
+  var toolTemplate = fs.readFileSync(templateSource);
+  return io.templateSync (toolTemplate, context);
 }

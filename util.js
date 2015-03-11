@@ -1,3 +1,4 @@
+/* globals mkdir, cp */
 'use strict';
 
 var gulp     = require('gulp'),

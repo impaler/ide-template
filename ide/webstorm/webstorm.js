@@ -170,14 +170,24 @@ WebStorm.prototype.createProjectContext = function (projectName, contentPaths, j
  * user preferences folders.
  * @see http://www.jetbrains.com/webstorm/webhelp/external-tools.html
  */
-WebStorm.prototype.copyCodeStyle = function (source) {
-  if (!fs.existsSync(source)) {
-    console.error('WebStorm.copyCodeStyle() the provided path for the codestyle xml does not exist at', source);
+WebStorm.prototype.copyCodeStyle = function (codeStyleFile, styleName, projectLocation) {
+  if (!fs.existsSync(codeStyleFile)) {
+    console.error('WebStorm.copyCodeStyle() the provided path for the codestyle xml does not exist at', codeStyleFile);
+  }
+  if (!fs.existsSync(projectLocation)) {
+    console.error('WebStorm.copyCodeStyle() the provided projectLocation does not exist at', projectLocation);
   }
 
-  var basename = path.basename(source);
-  var destination = path.join(userPreferencesDirectory(), 'codestyles', basename);
-  io.copyFileSync(source, destination);
+  // copy the actual code stlye configuration to the user preferences folder
+  var basename = path.basename(codeStyleFile);
+  var codeStyleDestination = path.join(userPreferencesDirectory(), 'codestyles', basename);
+  io.copyFileSync(codeStyleFile, codeStyleDestination);
+
+  // The .idea project requires a codeStyleSettings.xml with the default code style name
+  var codeStyleTemplateName = 'codeStyleSettings.xml';
+  var codeStyleSettingsSource = path.join(String(__dirname), 'template', codeStyleTemplateName);
+  var codeStyleSettingsDestination = path.join(projectLocation, '.idea', codeStyleTemplateName);
+  io.writeTemplateFileSync(codeStyleSettingsSource, {codeStyleName: styleName}, codeStyleSettingsDestination);
 };
 
 /**

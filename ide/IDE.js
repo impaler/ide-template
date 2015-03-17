@@ -21,7 +21,9 @@ function IDE(name) {
 IDE.prototype = {
   constructor       : IDE,
   open              : function (location) {
-    location = '"' + location + '"';
+    if (platform.isWindows()) {
+      location = '"' + location + '"';
+    }
     console.log('opening,', this.executable(), ' at ', location);
     childProcess.spawn(this.executable(), [location], {detached: true});
   },

@@ -50,8 +50,17 @@ WebStorm.prototype.executable = function () {
     return '/Applications/WebStorm.app/Contents/MacOS/webide';
 
   } else if (platform.isUnix()) {
-    return path.join('opt/webstorm/bin/webstorm.sh');
-
+    var selectedExecPath = null;
+    [
+      '/usr/local/bin/wstorm',
+      '/opt/webstorm/bin/webstorm.sh'
+    ].forEach(function(execPath) {
+      if (io.existsFileSync(execPath)) {
+        selectedExecPath = execPath;
+      }
+    });
+    return selectedExecPath;
+    
   } else {
     return null;
   }

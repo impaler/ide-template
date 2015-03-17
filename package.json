@@ -1,6 +1,6 @@
 {
   "name": "ide-template",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "Programatically generate ide project files.",
   "main": "index.js",
   "private": false,

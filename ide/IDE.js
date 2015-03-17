@@ -11,6 +11,8 @@ var fs           = require('fs'),
     pathNode     = require('path'),
     childProcess = require('child_process');
 
+var platform = require('../lib/platform');
+
 module.exports = IDE;
 
 function IDE(name) {

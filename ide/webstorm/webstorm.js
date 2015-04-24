@@ -40,11 +40,7 @@ WebStorm.prototype.executable = function () {
     return this.customExecutable;
 
   } else if (platform.isWindows()) {
-    return path.join(
-      io.maximisePath(
-        io.reduceDirectories('C:/Program Files/JetBrains', 'C:/Program Files (x86)/JetBrains'),
-        /^WebStorm\s*[.\d]+$/, 'bin'),
-      'Webstorm.exe');
+    return resolveWindowsExe();
 
   } else if (platform.isMacOS()) {
     return '/Applications/WebStorm.app/Contents/MacOS/webide';
@@ -311,3 +307,55 @@ function writeProjectViewTemplate(rootPath) {
   var toolTemplate = fs.readFileSync(templateSource);
   return io.templateSync (toolTemplate, context);
 }
+/**
+ * Check if a Webstorm.exe exists in the default install location for windows.
+ * @return {boolean} A true concatenated path where found, else false.
+ */
+function resolveWindowsExe() {
+  var jetbrainsDirectory = io.reduceDirectories('C:/Program Files/JetBrains', 'C:/Program Files (x86)/JetBrains');
+  return resolveJetbrainsExe(jetbrainsDirectory);
+}
+
+/**
+ * Check if a Webstorm.exe exists in a given windows program files directory.
+ * @param {string} Jetbrains install directory eg, C:/Program Files/JetBrains.
+ * @returns {string|boolean} A true concatenated path where found, else false.
+ */
+function resolveJetbrainsExe(jetbrainsDirectory) {
+  var exists = false;
+  var webstormInstallPaths = io.resolveDirMatches(jetbrainsDirectory, /^WebStorm\s*[.\d]+$/);
+
+  // Check that the Webstorm folder have a bin folder, empty folders are a known issue.
+  for (var j = 0; j < webstormInstallPaths.length; j++) {
+    var webstormPath = [jetbrainsDirectory, webstormInstallPaths[j], 'bin'];
+    var resolvedWebstorm = resolveMaxedPath(webstormPath);
+    if(resolvedWebstorm === null) break;
+
+    exists = path.resolve(resolvedWebstorm.join(path.sep), 'Webstorm.exe');
+    if(fs.existsSync(exists)) {
+      return exists;
+    }
+  }
+
+  return exists;
+}
+
+function resolveMaxedPath(elements) {
+  for (var i = 1; i < elements.length; i++) {
+    // the directory is elements 0 .. i-1 joined
+    var directory = path.resolve(path.join.apply(path, elements.slice(0, i)));
+
+    // no directory implies failure
+    if (!fs.existsSync(directory)) {
+      return null;
+    }
+    // anything else is cast to string
+    else {
+      elements[i] = String(elements[i]);
+    }
+  }
+
+  return elements;
+}
+
+

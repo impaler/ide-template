@@ -106,7 +106,7 @@ WebStorm.prototype.createProject = function (destination, context) {
  *
  */
 WebStorm.prototype.copyFileTemplates = function (source) {
-  var destination = path.join(userPreferencesDirectory(), 'fileTemplates');
+  var destination = userPreferencesDirectory('fileTemplates');
   var isValid = io.existsDirectorySync(destination);
 
   if (!isValid) {
@@ -189,7 +189,7 @@ WebStorm.prototype.copyCodeStyle = function (codeStyleFile, styleName, projectLo
 
   // copy the actual code stlye configuration to the user preferences folder
   var basename = path.basename(codeStyleFile);
-  var codeStyleDestination = path.join(userPreferencesDirectory(), 'codestyles', basename);
+  var codeStyleDestination = path.join(userPreferencesDirectory('codestyles'), basename);
   io.copyFileSync(codeStyleFile, codeStyleDestination);
 
   // The .idea project requires a codeStyleSettings.xml with the default code style name
@@ -206,7 +206,7 @@ WebStorm.prototype.copyCodeStyle = function (codeStyleFile, styleName, projectLo
  * @see http://www.jetbrains.com/webstorm/webhelp/external-tools.html
  */
 WebStorm.prototype.copyExternalTools = function (source) {
-  var destination = path.join(userPreferencesDirectory(), 'tools');
+  var destination = userPreferencesDirectory('tools');
   io.copyFileSync(source, destination);
 };
 
@@ -252,7 +252,7 @@ WebStorm.prototype.createExternalTool = function (context, fileName) {
   var toolTemplate = fs.readFileSync(templateSource);
   var content = _.template(toolTemplate, context);
 
-  var toolsPath = path.join(userPreferencesDirectory(), 'tools');
+  var toolsPath = userPreferencesDirectory('tools');
   io.validateDirectorySync(toolsPath);
   var destination = path.join(toolsPath, fileName);
 
@@ -285,12 +285,13 @@ function stubPlainTextFiles(resourceRoots, destination) {
 
 /**
  * The user preferences directory for WebStorm on the current platform.
+ * https://www.jetbrains.com/webstorm/help/project-and-ide-settings.html
  * @returns {string}
  */
-function userPreferencesDirectory() {
+function userPreferencesDirectory(subdir) {
   var home = platform.userHomeDirectory();
-  return io.maximisePath(home, /^\.WebStorm\s*[.\d]+$/, 'config') ||         // windows|unix
-    io.maximisePath(home, 'Library', 'Preferences', /^WebStorm\s*[.\d]+$/);  // darwin
+  return io.maximisePath(home, /^\.WebStorm\s*[.\d]+$/, 'config', subdir) ||         // windows|unix
+    io.maximisePath(home, 'Library', 'Preferences', /^WebStorm\s*[.\d]+$/, subdir);  // darwin
 }
 
 /**

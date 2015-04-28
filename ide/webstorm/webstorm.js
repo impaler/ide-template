@@ -286,12 +286,23 @@ function stubPlainTextFiles(resourceRoots, destination) {
 /**
  * The user preferences directory for WebStorm on the current platform.
  * https://www.jetbrains.com/webstorm/help/project-and-ide-settings.html
- * @returns {string}
+ * @returns {string} an absolute path to the .Webstorm xxx preferences folder.
  */
-function userPreferencesDirectory(subdir) {
+function userPreferencesDirectory(configDirectory) {
   var home = platform.userHomeDirectory();
-  return io.maximisePath(home, /^\.WebStorm\s*[.\d]+$/, 'config', subdir) ||         // windows|unix
-    io.maximisePath(home, 'Library', 'Preferences', /^WebStorm\s*[.\d]+$/, subdir);  // darwin
+  var webStormPreferences = io.maximisePath(home, /^\.WebStorm\s*[.\d]+$/, 'config') ||   // windows|unix
+    io.maximisePath(home, 'Library', 'Preferences', /^WebStorm\s*[.\d]+$/);               // darwin
+
+  // If the config directory does not previously exist, create it.
+  // Eg the tools directory wont exist unless External Tools were previously used.
+  if(webStormPreferences) {
+    webStormPreferences = path.join(webStormPreferences, configDirectory);
+    if(!fs.existsSync(webStormPreferences)) {
+      fs.mkdirSync(webStormPreferences);
+    }
+  }
+
+  return webStormPreferences;
 }
 
 /**

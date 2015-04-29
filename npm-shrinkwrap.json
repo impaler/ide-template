@@ -1,6 +1,6 @@
 {
   "name": "ide-template",
-  "version": "2.3.2",
+  "version": "2.3.3",
   "dependencies": {
     "gulp": {
       "version": "3.8.8",

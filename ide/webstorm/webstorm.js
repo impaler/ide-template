@@ -45,8 +45,8 @@ WebStorm.prototype.executable = function () {
   } else if (platform.isMacOS()) {
     var expectedPaths = [
       '/usr/local/bin/wstorm',
-      '/Applications/WebStorm.app/Contents/MacOS/webide', //WebStorm 9
-      '/Applications/WebStorm.app/Contents/MacOS/webstorm' //WebStorm 10
+      '/Applications/WebStorm.app/Contents/MacOS/webstorm', //WebStorm 10
+      '/Applications/WebStorm.app/Contents/MacOS/webide' //WebStorm 9
     ];
 
     for (var i = 0; i < expectedPaths.length; i++) {

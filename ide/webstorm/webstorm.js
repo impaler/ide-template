@@ -43,17 +43,18 @@ WebStorm.prototype.executable = function () {
     return resolveWindowsExe();
 
   } else if (platform.isMacOS()) {
-    var selectedExecPath = null;
-    [
+    var expectedPaths = [
       '/usr/local/bin/wstorm',
       '/Applications/WebStorm.app/Contents/MacOS/webide', //WebStorm 9
       '/Applications/WebStorm.app/Contents/MacOS/webstorm' //WebStorm 10
-    ].forEach(function(execPath) {
-        if (io.existsFileSync(execPath)) {
-          selectedExecPath = execPath;
-        }
-      });
-    return selectedExecPath;
+    ];
+
+    for (var i = 0; i < expectedPaths.length; i++) {
+      var execPath = expectedPaths[i];
+      if (io.existsFileSync(execPath)) {
+        return execPath;
+      }
+    }
 
   } else if (platform.isUnix()) {
     var selectedExecPath = null;
